@@ -1,4 +1,4 @@
-{% load admin_static bootstrapped_goodies_tags %}{% load url from future %}
+{% load admin_static sitetree bootstrapped_goodies_tags %}{% load url from future %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 <head>
@@ -8,83 +8,99 @@
     {% block extrastyle %}{% endblock %}
 
     <!-- Le styles, placed after extrastyle to correctly override default styling -->
-    <link href="{% static "bootstrap/css/bootstrap.min.css" %}" rel="stylesheet"/>
+    <link href="{% static "bootstrap/css/styles.css" %}" rel="stylesheet"/>
     <style type="text/css">
       body {
         padding-top: 60px;
         padding-bottom: 40px;
       }
     </style>
-    <link href="{% static "bootstrap/css/bootstrap-responsive.min.css" %}" rel="stylesheet"/>
     <link rel="stylesheet" type="text/css" href="{% static "admin/css/overrides.css" %}" />
 
     <!-- <link rel="stylesheet" type="text/css" href="{% block stylesheet %}{% static "admin/css/base.css" %}{% endblock %}" /> -->
     <script type="text/javascript">
     //<![CDATA[
-        window.__admin_media_prefix__ = "{% filter escapejs %}{% static "admin/" %}{% endfilter %}";
-    //]]>
-    </script>
-    <script src="{% static "admin/js/jquery-1.9.1.min.js" %}"></script>
-    <script src="{% static "admin/js/jquery-migrate-1.2.1.min.js" %}"></script>
-    <script src="{% static "bootstrap/js/bootstrap.min.js" %}"></script>
-
-    {% block extrahead %}{% endblock %}
-
-    {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE" />{% endblock %}
-    <script type="text/javascript">
-    //<![CDATA[
-            (function($) {
-                $(document).ready(function() {
-                    $('input[type="submit"]').addClass('btn');
-                    $('[title]').tooltip();
+        var __admin_media_prefix__ = "{% filter escapejs %}{% static "admin/" %}{% endfilter %}";
+        var __base_url__ = "{{ BASE_URL }}";
+        var Application = {
+            name: '{{ application.name }}',
+            base_url: '{% url application.get_index_url %}',
+            serverUrl: function() { 
+                var parts = [];
+                $.each(arguments, function(index, p) { 
+                    parts.push.apply(parts, p.toString().split("/"));
                 });
-            }(jQuery));
+                parts = parts.filter(function(p){
+                    return p.trim() != "";
+                });
+                return __base_url__ + parts.join("/") + "/";
+            },
+            url: function() { 
+                var args = $(arguments || []).toArray();
+                args.unshift(this.base_url);
+                return this.serverUrl.apply(this, args); 
+            },
+        }
+        var fs = ["log", "warn"];
+        fs.map(function(name) {
+            if (console && console[name])
+                Application[name] = console[name];
+        });
     //]]>
     </script>
+    <script src="{% static "js/lib/jquery-1.7.2.js" %}"></script>
+    <script src="{% static "js/lib/underscore-min.js" %}"></script>
+    <script src="{% static "js/config/underscore.js" %}"></script>
+    <script src="{% static "js/lib/bootstrap.min.js" %}"></script>
+    {% block extrahead %}{% endblock %}
+    {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE" />{% endblock %}
 </head>
 {% load i18n %}
 
 <body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}">
 
 <!-- Container -->
-<div class="container-fluid">
+<div class="container">
 
     {% if not is_popup %}
     <!-- Header -->
-    <div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar navbar-inverse navbar-fixed-bottom">
         <div class="navbar-inner">
-            <div class="container-fluid">
-                <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </a>
-                {% block branding %}{% endblock %}
-                <div class="nav-collapse collapse pull-right">
-                    <ul class="nav">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    {% block branding %}{% endblock %}
+                </div>
+                <div class="navbar-collapse collapse navbar-right">
+                    <ul class="nav navbar-nav">
                         {% if user.is_active and user.is_staff %}
                         <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans 'Welcome,' %} <strong>{% filter force_escape %}{% firstof user.get_short_name user.get_username user.first_name user.username %}{% endfilter %}</strong> <b class="caret"></b></a>
-                            <ul class="dropdown-menu pull-right">
+                            <a class="dropdown-toggle" data-toggle="dropdown">{% trans 'Welcome,' %} <strong>{% filter force_escape %}{% firstof user.get_short_name user.get_username user.first_name user.username %}{% endfilter %}</strong> <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                {% block user-actions %}{% endblock %}
                                 {% if user.has_usable_password %}
                                 <li><a href="{% url 'admin:password_change' %}">{% trans 'Change password' %}</a></li>
                                 {% endif %}
-                                <li><a href="{% url 'admin:logout' %}">{% trans 'Log out' %}</a></li>
+                                <li><a href="{% url 'account:logout' %}">{% trans 'Log out' %}</a></li>
                             </ul>
                         </li>
+                        {% application_selector %}
                         {% block languages %}
-                        <li class="divider-vertical"></li>
                         {% language_selector %}
                         {% endblock languages %}
                         {% block logs %}
                         <li class="dropdown" id="recent-actions-module">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans 'Recent Actions' %} <b class="caret"></b></a>
+                            <a class="dropdown-toggle" data-toggle="dropdown">{% trans 'Recent Actions' %} <b class="caret"></b></a>
                             {% load log %}
                             {% get_admin_log 10 as admin_log for_user user %}
-                            <ul class="dropdown-menu pull-right">
+                            <ul class="dropdown-menu">
                                 {% for entry in admin_log %}
                                 <li class="{% if entry.is_addition %}addlink{% endif %}{% if entry.is_change %}changelink{% endif %}{% if entry.is_deletion %}deletelink{% endif %}">
-                                    <a href="{% if entry.is_deletion or not entry.get_admin_url %}#{% else %}{{ entry.get_admin_url }}{% endif %}">
+                                    <a {% if not entry.is_deletion and entry.get_admin_url %}href="{{ entry.get_admin_url }}"{% endif %}>
                                         <i class="icon-{% if entry.is_addition %}plus{% endif %}{% if entry.is_change %}edit{% endif %}{% if entry.is_deletion %}remove{% endif %}"></i>
                                         {{ entry.object_repr }}
                                         {% if entry.content_type %}
@@ -95,7 +111,7 @@
                                     </a>
                                 </li>
                                 {% empty %}
-                                <li class="disabled"><a href="#">{% trans 'None available' %}</a></li>
+                                <li class="disabled"><a>{% trans 'None available' %}</a></li>
                                 {% endfor %}
                             </ul>
                         </li>
@@ -115,8 +131,23 @@
         </div>
     </div>
     <!-- END Header -->
-    <div class="row-fluid">
-        <div class="span12">
+    <!-- Navigation -->
+    <div class="row">
+        <div class="col-sm-12">
+        {% block navigation %}
+            <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+              <div class="container">
+                <ul class="nav navbar-nav">
+                    {% sitetree_menu from application.name include "trunk,topmenu" template "sitetree/menu_bootstrap.html" %}
+                </ul>
+            </div>
+            </nav>
+        {% endblock %}
+        </div>
+    </div>
+    <!-- END Navigation -->
+    <div class="row">
+        <div class="col-sm-12">
             {% block breadcrumbs %}
             {% endblock %}
         </div>
@@ -126,23 +157,21 @@
     <!-- Content -->
     <div id="content" class="{% block coltype %}colM{% endblock %}">
         {% block navbar %}
-        <div class="row-fluid">
-            <div class="navbar">
-                <div class="navbar-inner">
-                    {% block pretitle %}{% endblock %}
-                    {% block content_title %}{% if title %}<a class="brand">{% render_with_template_if_exist title|lower|add:"/admin_app_name.html" title %}</a>{% endif %}{% endblock %}
-                    {% block object-tools %}{% endblock %}
-                </div>
+        <div class="navbar navbar-default">
+            <div class="navbar-inner">
+                {% block pretitle %}{% endblock %}
+                {% block content_title %}{% if title %}<a class="navbar-brand">{% render_with_template_if_exist title|lower|add:"/admin_app_name.html" title %}</a>{% endif %}{% endblock %}
+                {% block object-tools %}{% endblock %}
             </div>
         </div>
         {% endblock navbar %}
 
         {% block messages %}
         {% if messages %}
-        <div class="row-fluid">
-            <div class="span12">
+        <div class="row">
+            <div class="col-sm-12">
                 <div class="alert alert-info">
-                    <ul class="unstyled">
+                    <ul class="list-unstyled">
                         {% for message in messages %}
                         <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
                         {% endfor %}
@@ -157,10 +186,20 @@
         {% block sidebar %}{% endblock %}
     </div>
     <!-- END Content -->
-
-    {% block footer %}<footer id="footer"></footer>{% endblock %}
 </div>
+{% block footer %}{% endblock %}
 <!-- END Container -->
-
+{% block dialogs %}{% endblock %}
+<script type="text/javascript">
+//<![CDATA[
+        (function($) {
+            $(document).ready(function() {
+                $('input[type="submit"]').addClass('btn');
+                $('[title]').tooltip();
+            });
+        }(jQuery));
+//]]>
+</script>
+{% block extrascripts %}{% endblock %}
 </body>
 </html>

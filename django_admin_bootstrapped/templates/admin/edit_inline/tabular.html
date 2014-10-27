@@ -10,7 +10,7 @@
      {% for field in inline_admin_formset.fields %}
        {% if not field.widget.is_hidden %}
          <th{% if forloop.first %} colspan="2"{% endif %}{% if field.required %} class="required"{% endif %}>{{ field.label|capfirst }}
-         {% if field.help_text %}<i class="icon-comment help help-tooltip" style="margin-left: 4px;" alt="({{ field.help_text|striptags }})" title="{{ field.help_text|striptags }}"></i>{% endif %}
+         {% if field.help_text %}<i class="glyphicon glyphicon-comment help help-tooltip" style="margin-left: 4px;" alt="({{ field.help_text|striptags }})" title="{{ field.help_text|striptags }}"></i>{% endif %}
          </th>
        {% endif %}
      {% endfor %}
@@ -26,7 +26,7 @@
              id="{{ inline_admin_formset.formset.prefix }}-{% if not forloop.last %}{{ forloop.counter0 }}{% else %}empty{% endif %}">
         <td class="original">
           {% if inline_admin_formset.opts.sortable_field_name %}
-          <span class="btn btn-mini drag-handler pull-left"><i class="icon-move"></i></span>
+          <span class="btn btn-default btn-xs drag-handler pull-left"><i class="glyphicon glyphicon-move"></i></span>
           {% endif %}
           {% if inline_admin_form.original or inline_admin_form.show_url %}<p>
           {% if inline_admin_form.original %} {{ inline_admin_form.original }}{% endif %}
@@ -52,7 +52,7 @@
                   <p>{{ field.contents }}</p>
               {% else %}
                   {% if field.errors %}
-                  <div class="alert alert-error">{{ field.errors|striptags }}</div>
+                  <div class="alert alert-danger">{{ field.errors|striptags }}</div>
                   {% endif %}
                   {{ field.field }}
               {% endif %}

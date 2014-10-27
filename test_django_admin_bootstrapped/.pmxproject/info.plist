@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>description</key>
+	<string></string>
+	<key>keywords</key>
+	<array/>
+	<key>licence</key>
+	<string>Apache License 2.0</string>
+	<key>name</key>
+	<string>test_django_admin_bootstrapped</string>
+</dict>
+</plist>

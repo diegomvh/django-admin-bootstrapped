@@ -1,10 +1,10 @@
-{% extends "admin/base_site.html" %}
+{% extends base_site_template %}
 {% load i18n %}
 {% load url from future %}
 
 {% block breadcrumbs %}
 <ul class="breadcrumb">
-<li><a href="{% url 'admin:index' %}">{% trans 'Home' %}</a> <span class="divider">/</span></li>
+<li><a href="{% url 'admin:index' %}">{% trans 'Home' %}</a></li>
 <li>{{ title }}</li>
 </ul>
 {% endblock %}

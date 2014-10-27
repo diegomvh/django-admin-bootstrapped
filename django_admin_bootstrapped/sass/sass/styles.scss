@@ -1,0 +1,21 @@
+// customize bootstrap variables here:
+@import "bootstrap";
+
+// this is where bootswatch themes should be added.
+// @import "theme-spacelab/variables.less";
+// @import "theme-spacelab/bootswatch.less";
+// must add back the utilities file again.
+@import "bootstrap/utilities";
+
+@import "jq-ui-bootstrap/jq-ui-bootstrap";
+
+// third parties
+// @import "thirdParty/wijmo-theming.less";
+// @import "thirdParty/ui.daterangepicker.less";
+// @import "thirdParty/enhanced.less";
+// @import "thirdParty/font-awesome.less";
+// @import "thirdParty/select2-bootstrap.less";
+
+.selectable-deck-item {
+    padding: 6px;
+}

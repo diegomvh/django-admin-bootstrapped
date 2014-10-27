@@ -1,0 +1,11 @@
+<li class="dropdown">
+  <a class="dropdown-toggle" data-toggle="dropdown">{{ application.name|capfirst }}<span class="caret"></span></a>
+
+  <ul class="dropdown-menu">
+    {% for app in applications %}
+    <li>
+        <a href="{% url app.get_index_url %}">{{ app.name|capfirst }}</a>
+    </li>
+    {% endfor %}
+  </ul>
+</li>

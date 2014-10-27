@@ -1,7 +1,12 @@
 from django.contrib import admin
-from django_admin_bootstrapped.admin.models import SortableInline
+from application.admin.models import SortableInline
 from .models import TestMe, TestThat, TestMeProxyForFieldsets, TestSortable
+import application
 
+class InicialSite(application.ApplicationSite):
+    pass
+
+site = InicialSite("admin")
 
 class TestThatStackedInline(admin.StackedInline):
     model = TestThat
@@ -39,5 +44,5 @@ class TestMeAdminFieldsets(TestMeAdmin):
         }),
     )
 
-admin.site.register(TestMeProxyForFieldsets, TestMeAdminFieldsets)
-admin.site.register(TestMe, TestMeAdmin)
+site.register(TestMeProxyForFieldsets, TestMeAdminFieldsets)
+site.register(TestMe, TestMeAdmin)
