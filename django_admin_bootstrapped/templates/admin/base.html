@@ -24,6 +24,12 @@
         var __base_url__ = "{{ BASE_URL }}";
         var Application = {
             name: '{{ application.name }}',
+            organizacion: {{ organizacion.pk }},
+            user: {
+                  pk: {{ user.pk }},
+                  {% if user.persona %}persona: {{ user.persona.pk }},{% endif %}
+                  {% if user.organizacion %}organizacion: {{ user.organizacion.pk }},{% endif %}
+            },
             base_url: '{% url application.get_index_url %}',
             serverUrl: function() { 
                 var parts = [];
@@ -59,11 +65,20 @@
 
 <body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}">
 
-<!-- Container -->
-<div class="container">
+{% if not is_popup %}
+    <!-- Navigation Top -->
+    {% block navigation %}
+        <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+          <div class="container">
+            <ul class="nav navbar-nav">
+                {% sitetree_menu from application.name include "trunk,topmenu" template "sitetree/menu_bootstrap.html" %}
+            </ul>
+        </div>
+        </nav>
+    {% endblock %}
+    <!-- END Navigation Top -->
 
-    {% if not is_popup %}
-    <!-- Header -->
+    <!-- Navigation Bottom -->
     <div class="navbar navbar-inverse navbar-fixed-bottom">
         <div class="navbar-inner">
             <div class="container">
@@ -130,22 +145,14 @@
             </div>
         </div>
     </div>
-    <!-- END Header -->
-    <!-- Navigation -->
-    <div class="row">
-        <div class="col-sm-12">
-        {% block navigation %}
-            <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
-              <div class="container">
-                <ul class="nav navbar-nav">
-                    {% sitetree_menu from application.name include "trunk,topmenu" template "sitetree/menu_bootstrap.html" %}
-                </ul>
-            </div>
-            </nav>
-        {% endblock %}
-        </div>
-    </div>
-    <!-- END Navigation -->
+    <!-- END Navigation Bottom -->
+{% endif %}
+
+
+{% block container %}
+<!-- Container -->
+<div class="container">
+    {% if not is_popup %}
     <div class="row">
         <div class="col-sm-12">
             {% block breadcrumbs %}
@@ -153,7 +160,6 @@
         </div>
     </div>
     {% endif %}
-
     <!-- Content -->
     <div id="content" class="{% block coltype %}colM{% endblock %}">
         {% block navbar %}
@@ -189,6 +195,8 @@
 </div>
 {% block footer %}{% endblock %}
 <!-- END Container -->
+{% endblock %}
+
 {% block dialogs %}{% endblock %}
 <script type="text/javascript">
 //<![CDATA[
