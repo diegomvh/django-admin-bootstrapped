@@ -31,20 +31,25 @@
                   {% if user.organizacion %}organizacion: {{ user.organizacion.pk }},{% endif %}
             },
             base_url: '{% url application.get_index_url %}',
-            serverUrl: function() { 
+            _build_url: function(args) {
                 var parts = [];
-                $.each(arguments, function(index, p) { 
+                $.each(args, function(index, p) { 
                     parts.push.apply(parts, p.toString().split("/"));
                 });
                 parts = parts.filter(function(p){
                     return p.trim() != "";
                 });
-                return __base_url__ + parts.join("/") + "/";
+                return "/" + parts.join("/") + "/";
+            },
+            serverUrl: function() { 
+                var args = $(arguments || []).toArray();
+                args.unshift(__base_url__);
+                return this._build_url(args);
             },
             url: function() { 
                 var args = $(arguments || []).toArray();
                 args.unshift(this.base_url);
-                return this.serverUrl.apply(this, args); 
+                return this._build_url(args); 
             },
         }
         var fs = ["log", "warn"];
