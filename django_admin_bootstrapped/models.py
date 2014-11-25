@@ -41,7 +41,7 @@ class Application(models.Model):
         
     def get_index_url(self):
         return "%s:index" % self.name
-
+        
 class RequestSite(object):
     def __init__(self, request):
         self.name = get_request_application_name(request)

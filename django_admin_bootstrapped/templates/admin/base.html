@@ -78,7 +78,10 @@
         <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
           <div class="container">
             <ul class="nav navbar-nav">
-                {% sitetree_menu from application.name include "trunk,topmenu" template "sitetree/menu_bootstrap.html" %}
+                {% sitetree_menu from application.name include "main" template "sitetree/menu_bootstrap.html" %}
+            </ul>
+            <ul class="nav navbar-nav pull-right">
+                {% sitetree_menu from application.name include "help" template "sitetree/menu_bootstrap.html" %}
             </ul>
         </div>
         </nav>

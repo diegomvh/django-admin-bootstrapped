@@ -70,4 +70,5 @@ td.action-checkbox {
 }
 
 #changelist-form .results {
+    overflow-x: unset;
 }
