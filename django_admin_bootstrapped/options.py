@@ -4,6 +4,7 @@
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.contrib import admin
+from django.http import HttpResponseRedirect
 from django.contrib.admin.templatetags.admin_static import static
 from django.contrib.admin.options import csrf_protect_m
 from django import forms
@@ -32,6 +33,8 @@ class StackedInline(admin.StackedInline):
 
 def modelApplicationFactory(BaseModelAdmin):
     class ModelApplication(BaseModelAdmin):
+        default_filters = None
+
         @csrf_protect_m
         @transaction.atomic
         def add_view(self, request, form_url='', extra_context=None):
@@ -48,6 +51,20 @@ def modelApplicationFactory(BaseModelAdmin):
 
         @csrf_protect_m
         def changelist_view(self, request, extra_context=None):
+            if self.default_filters:
+                try:
+                    test = request.META['HTTP_REFERER'].split(request.META['PATH_INFO'])
+                    if test and test[-1] and not test[-1].startswith('?'):
+                        url = reverse('%s:%s_%s_changelist' % (self.admin_site.name, self.opts.app_label, self.opts.module_name))
+                        filters = []
+                        for filter in self.default_filters:
+                            key = filter.split('=')[0]
+                            if not request.GET.has_key(key):
+                                filters.append(filter)
+                        if filters:                        
+                            return HttpResponseRedirect("%s?%s" % (url, "&".join(filters)))
+                except: 
+                    pass
             context = dict(self.admin_site.each_context())
             context.update(extra_context or {})
             return super(ModelApplication, self).changelist_view(request, context)
